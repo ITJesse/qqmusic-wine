@@ -11,8 +11,3 @@ makepkg -si
 ```bash
 qqmusic-wine
 ```
-
-## 特点
-- 使用官方安装包
-- 完整安装流程
-- 构建时间较长

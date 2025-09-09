@@ -11,8 +11,3 @@ makepkg -si
 ```bash
 qqmusic-wine
 ```
-
-## 特点
-- 快速安装
-- 文件小(89MB)
-- 高可靠性
