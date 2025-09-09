@@ -21,3 +21,5 @@ wineprefix/
 # Editor backups
 .vscode/
 .idea/
+
+*.exe

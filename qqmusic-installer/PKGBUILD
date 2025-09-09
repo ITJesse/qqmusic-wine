@@ -11,13 +11,13 @@ makedepends=('wine-staging' 'winetricks')
 optdepends=('lib32-pulse: 音频支持'
             'lib32-mesa: 图形支持'
             'lib32-vulkan-icd-loader: DXVK Vulkan 支持')
-source=("QQMusic_YQQWinPCDL.exe"
+source=("QQMusic_Setup_2181.exe::https://c.y.qq.com/cgi-bin/file_redirect.fcg?bid=dldir&file=ecosfile%2Fmusic_clntupate%2Fpc%2Fother%2FQQMusic_Setup_2181.exe&sign=1-f2f6f38fa14d11365c487b508b8cad01dc0358f81e497fe8cee643f79c1b33d8-68b80801"
         "msyh.ttc::https://files.exefiles.com/initial/m/msyh-ttc/d9adc6d2c21171c0f0b8dfbaec764b83/msyh.ttc"
         "msyhbd.ttc::https://files.exefiles.com/initial/m/msyhbd-ttc/db132f98d50f02f0ddb4ce4a5d847c97/msyhbd.ttc"
         "qqmusic-launcher.sh"
         "qqmusic.desktop"
 )
-sha256sums=('efbb432421975c97d61d947c2bb0e1581026c1c3ad842d9881ff14b0a61e9d57'
+sha256sums=('FEBE9BBC2D582ABFA6384E825991F70995C2EB1EF9869FAF09AA84F4FFAC2873'
             'd6a1a92bfd1249eccdd18a657189ed1f66704db429053b6d6c93b296eb9ef074'
             '0887451fa52c4685137a6df87720e607098ba81f14e7dd6f3d9c5319a558d59b'
             'e6017cdc7d7c1a28a14409ace6cc4c0f18f8e7cfeabef01b593825dc156cf1b7'
@@ -85,7 +85,7 @@ build() {
     echo "正在安装 QQ音乐..."
     cd "$srcdir"
     
-    wine "QQMusic_YQQWinPCDL.exe"
+    wine "QQMusic_Setup_2181.exe" silence=1 runafterinstall=no
 }
 
 package() {
