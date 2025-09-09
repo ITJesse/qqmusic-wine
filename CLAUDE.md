@@ -4,12 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an Arch Linux package (`qqmusic-wine`) that packages Tencent QQ Music Windows client to run on Linux through Wine. The project consists of four main files:
+Two Arch Linux packages for running Tencent QQ Music on Linux through Wine:
 
-- `PKGBUILD`: Arch Linux package build script that downloads QQ Music installer, sets up Wine environment with required dependencies, and installs Chinese fonts
-- `qqmusic-launcher.sh`: Shell script that manages user-specific Wine prefix, handles font configuration, and launches QQ Music
-- `qqmusic.desktop`: Desktop entry file for system integration
-- `font-config.reg`: Windows registry configuration file for Chinese font mapping
+### qqmusic-installer/
+- Uses official QQ Music installer
+- Downloads and runs installer during build
+
+### qqmusic-bin/ (Recommended)
+- Uses pre-extracted program files  
+- Faster build, smaller size (89MB)
+
+Both use command: `qqmusic-wine`
+
+Both packages include Wine environment setup, Chinese fonts, and runtime libraries.
 
 ## Architecture
 
@@ -19,7 +26,7 @@ This is an Arch Linux package (`qqmusic-wine`) that packages Tencent QQ Music Wi
 - Wine prefix location: `~/.config/qqmusic-wine/wineprefix` (user-specific)
 
 ### Dependencies and Components
-**Core dependencies:** `wine-staging`, `winetricks`, `wine-gecko`, `bubblewrap`
+**Core dependencies:** `wine-staging`, `winetricks`, `wine-gecko`
 **Installed Windows components:** `vcrun2015`, `gdiplus`, `quartz`, `riched20`, `dxvk`
 **Chinese font support:** Downloads and configures Microsoft YaHei fonts (`msyh.ttc`, `msyhbd.ttc`)
 

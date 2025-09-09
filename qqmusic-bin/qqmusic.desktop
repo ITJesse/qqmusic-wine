@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=QQ音乐
+Name[en]=QQ Music
+Comment=腾讯QQ音乐播放器
+Comment[en]=Tencent QQ Music Player
+Exec=qqmusic-wine
+Icon=multimedia-audio-player
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;Player;
+MimeType=audio/mpeg;audio/x-mp3;audio/mp3;audio/x-mpeg;audio/mpeg3;audio/x-mpeg3;audio/mpg;audio/x-mpegurl;audio/x-scpls;application/ogg;audio/x-ogg;audio/x-vorbis+ogg;
