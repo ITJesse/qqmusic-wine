@@ -2,8 +2,8 @@
 
 # QQ音乐 Wine 启动脚本
 
-# 确保使用 wine-staging
-export PATH="/opt/wine-staging/bin:$PATH"
+# 确保使用系统 wine
+# wine-staging 已安装在标准路径中
 
 # wine-staging 环境变量
 export STAGING_SHARED_MEMORY=1
@@ -24,25 +24,7 @@ if [ ! -d "$USER_CONFIG_DIR" ]; then
     
     export WINEPREFIX="$USER_CONFIG_DIR/wineprefix"
     
-    # 检查并重新应用字体配置（如果字体文件存在但注册表配置丢失）
-    if [ -f "$WINEPREFIX/drive_c/windows/Fonts/msyh.ttc" ] && [ ! -f "$WINEPREFIX/font_configured" ]; then
-        echo "正在重新配置中文字体..."
-        
-        # 注册字体
-        wine regedit "/opt/qqmusic-wine/font-config.reg"
-        
-        # 标记字体已配置
-        touch "$WINEPREFIX/font_configured"
-        
-        echo "字体配置完成"
-    fi
-    
-    # 为音频播放优化设置 (48kHz, 24-bit)
-    wine reg add "HKEY_CURRENT_USER\Software\Wine\DirectSound" /v MaxShadowSize /t REG_DWORD /d 8
-    wine reg add "HKEY_CURRENT_USER\Software\Wine\DirectSound" /v DefaultSampleRate /t REG_DWORD /d 48000
-    wine reg add "HKEY_CURRENT_USER\Software\Wine\DirectSound" /v DefaultBitsPerSample /t REG_DWORD /d 24
-    
-    echo "配置完成！"
+    echo "用户配置初始化完成！"
 fi
 
 export WINEPREFIX="$USER_CONFIG_DIR/wineprefix"
@@ -61,35 +43,6 @@ fi
 
 echo "正在启动 QQ音乐..."
 
-# 使用 bubblewrap 沙箱启动
-exec bwrap \
-    --unshare-all \
-    --share-net \
-    --die-with-parent \
-    --new-session \
-    --ro-bind /usr /usr \
-    --ro-bind /lib /lib \
-    --ro-bind /lib64 /lib64 \
-    --ro-bind /bin /bin \
-    --ro-bind /sbin /sbin \
-    --ro-bind /opt/wine-staging /opt/wine-staging \
-    --ro-bind /opt/qqmusic-wine /opt/qqmusic-wine \
-    --bind "$USER_CONFIG_DIR" "$USER_CONFIG_DIR" \
-    --bind "$HOME/.config/pulse" "$HOME/.config/pulse" 2>/dev/null || true \
-    --bind "$HOME/.local/share/applications" "$HOME/.local/share/applications" 2>/dev/null || true \
-    --ro-bind "$HOME/.Xauthority" "$HOME/.Xauthority" 2>/dev/null || true \
-    --tmpfs /tmp \
-    --proc /proc \
-    --dev /dev \
-    --tmpfs /run \
-    --bind /run/user/"$(id -u)"/pulse /run/user/"$(id -u)"/pulse 2>/dev/null || true \
-    --setenv WINEPREFIX "$USER_CONFIG_DIR/wineprefix" \
-    --setenv PATH "/opt/wine-staging/bin:/usr/bin:/bin" \
-    --setenv STAGING_SHARED_MEMORY "1" \
-    --setenv STAGING_RT_PRIORITY_SERVER "1" \
-    --setenv DXVK_LOG_LEVEL "warn" \
-    --setenv DXVK_HUD "fps,memory" \
-    --setenv DISPLAY "$DISPLAY" \
-    --setenv XDG_RUNTIME_DIR "/run/user/$(id -u)" \
-    --chdir "$QQMUSIC_PATH" \
-    wine "QQMusic.exe" "$@"
+# 切换到程序目录并启动
+cd "$QQMUSIC_PATH"
+wine "QQMusic.exe" "$@"

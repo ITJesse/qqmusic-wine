@@ -6,30 +6,28 @@ pkgdesc="QQ音乐客户端，通过 Wine 运行"
 arch=('x86_64')
 url="https://y.qq.com/"
 license=('custom')
-depends=('wine-staging' 'winetricks' 'wine-gecko' 'bubblewrap')
+depends=('wine-staging' 'winetricks' 'wine-gecko')
 makedepends=('wine-staging' 'winetricks')
 optdepends=('lib32-pulse: 音频支持'
             'lib32-mesa: 图形支持'
             'lib32-vulkan-icd-loader: DXVK Vulkan 支持')
-conflicts=('wine')
 source=("QQMusic_YQQWinPCDL.exe::https://dldir.y.qq.com/music/clntupate/QQMusic_YQQWinPCDL.exe?sign=1757381507-EGbYzfSyKpn6BWR2-0-e2aa04ee9774adb1c83e7ce63c67cffa"
         "msyh.ttc::https://files.exefiles.com/initial/m/msyh-ttc/d9adc6d2c21171c0f0b8dfbaec764b83/msyh.ttc"
         "msyhbd.ttc::https://files.exefiles.com/initial/m/msyhbd-ttc/db132f98d50f02f0ddb4ce4a5d847c97/msyhbd.ttc"
         "qqmusic-launcher.sh"
         "qqmusic.desktop"
-        "font-config.reg")
+)
 sha256sums=('efbb432421975c97d61d947c2bb0e1581026c1c3ad842d9881ff14b0a61e9d57'
             'd6a1a92bfd1249eccdd18a657189ed1f66704db429053b6d6c93b296eb9ef074'
             '0887451fa52c4685137a6df87720e607098ba81f14e7dd6f3d9c5319a558d59b'
-            'f387e99ef3b39e450e90d2e1a9f02b9ae94827a681aa1c7284775093f23d572a'
-            '5448186b1bbdfb232317a89557540ccc4cc17cf59600bea225af7e02680b2449'
-            '402f3fe7289bf7f17ae7c82606542ce28932427079f4273a0f554e2b210483fa')
+            'e6017cdc7d7c1a28a14409ace6cc4c0f18f8e7cfeabef01b593825dc156cf1b7'
+            '32573a27a2c820ae94bf537897ea23193a95cd7c0306a679d445e88e7ace996a')
 
 prepare() {
     # 设置 Wine prefix
     export WINEPREFIX="$srcdir/wineprefix"
     export WINEARCH=win64
-    export PATH="/opt/wine-staging/bin:$PATH"
+    # wine-staging 已安装在系统标准路径
     
     echo "正在初始化 Wine 环境..."
     wineboot --init
@@ -50,16 +48,49 @@ prepare() {
     cp "$srcdir/msyh.ttc" "$WINEPREFIX/drive_c/windows/Fonts/"
     cp "$srcdir/msyhbd.ttc" "$WINEPREFIX/drive_c/windows/Fonts/"
     
+    # 创建字体注册表文件
+    cat > "$WINEPREFIX/font.reg" << 'EOF2'
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontSubstitutes]
+"MS Shell Dlg"="msyh"
+"MS Shell Dlg 2"="msyh"
+
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink]
+"Lucida Sans Unicode"="msyh.ttc"
+"Microsoft Sans Serif"="msyh.ttc"
+"MS Sans Serif"="msyh.ttc"
+"Tahoma"="msyh.ttc"
+"Tahoma Bold"="msyhbd.ttc"
+"msyh"="msyh.ttc"
+"Arial"="msyh.ttc"
+"Arial Black"="msyh.ttc"
+EOF2
+
     # 注册字体到 Wine
-    wine regedit "$srcdir/font-config.reg"
+    wine regedit "$WINEPREFIX/font.reg"
+    
+    # 设置 Windows 版本为 Windows 7
+    wine reg add "HKEY_CURRENT_USER\Software\Wine" /v Version /t REG_SZ /d win7
+    
+    # 配置 DPI 设置 (默认 96 DPI)
+    wine reg add "HKEY_CURRENT_USER\Control Panel\Desktop" /v LogPixels /t REG_DWORD /d 96
+    wine reg add "HKEY_CURRENT_USER\Software\Wine\X11 Driver" /v ClientSideGraphics /t REG_SZ /d N
+    wine reg add "HKEY_CURRENT_USER\Software\Wine\X11 Driver" /v ScreenDepth /t REG_DWORD /d 24
+    
+    # 为音频播放优化设置 (48kHz, 24-bit)
+    wine reg add "HKEY_CURRENT_USER\Software\Wine\DirectSound" /v MaxShadowSize /t REG_DWORD /d 8
+    wine reg add "HKEY_CURRENT_USER\Software\Wine\DirectSound" /v DefaultSampleRate /t REG_DWORD /d 48000
+    wine reg add "HKEY_CURRENT_USER\Software\Wine\DirectSound" /v DefaultBitsPerSample /t REG_DWORD /d 24
     
     echo "中文字体配置完成"
+    echo "系统配置完成"
     echo "Wine 环境配置完成"
 }
 
 build() {
     export WINEPREFIX="$srcdir/wineprefix"
-    export PATH="/opt/wine-staging/bin:$PATH"
+    # wine-staging 已安装在系统标准路径
     
     echo "正在安装 QQ音乐..."
     cd "$srcdir"
@@ -72,19 +103,22 @@ build() {
 }
 
 package() {
+    # 清理临时文件
+    rm -rf "$srcdir/wineprefix/drive_c/users/$USER/AppData/Local/Temp"/*
+    rm -rf "$srcdir/wineprefix/drive_c/users/$USER/AppData/Roaming/Microsoft/Windows/Recent"/*
+    rm -rf "$srcdir/wineprefix/drive_c/windows/temp"/*
+    
     # 安装 Wine prefix
     install -dm755 "$pkgdir/opt/$pkgname"
     cp -r "$srcdir/wineprefix" "$pkgdir/opt/$pkgname/"
     
     # 安装启动脚本
-    install -Dm755 "$srcdir/qqmusic-launcher.sh" "$pkgdir/usr/bin/qqmusic"
+    install -Dm755 "$srcdir/qqmusic-launcher.sh" "$pkgdir/usr/bin/qqmusic-wine"
     
     # 安装桌面文件
     install -Dm644 "$srcdir/qqmusic.desktop" \
-        "$pkgdir/usr/share/applications/qqmusic.desktop"
+        "$pkgdir/usr/share/applications/qqmusic-wine.desktop"
     
-    # 安装字体配置文件
-    install -Dm644 "$srcdir/font-config.reg" "$pkgdir/opt/$pkgname/font-config.reg"
     
     # 创建文档
     install -dm755 "$pkgdir/usr/share/doc/$pkgname"
@@ -106,17 +140,17 @@ package() {
 - msyhbd.ttc: 微软雅黑粗体字体
 
 ## 启动方式
-命令行: qqmusic
+命令行: qqmusic-wine
 桌面: 在应用程序菜单中找到 "QQ音乐"
 
 ## 故障排除
 如果遇到问题，可以尝试：
 1. 重新初始化配置目录: rm -rf ~/.config/qqmusic-wine
-2. 查看详细日志: WINEDEBUG=+all qqmusic
-3. 禁用 DXVK: WINEDLLOVERRIDES="d3d11,dxgi=builtin" qqmusic
+2. 查看详细日志: WINEDEBUG=+all qqmusic-wine
+3. 禁用 DXVK: WINEDLLOVERRIDES="d3d11,dxgi=builtin" qqmusic-wine
 4. 如果中文显示异常: 
    - 检查字体文件: ls ~/.config/qqmusic-wine/wineprefix/drive_c/windows/Fonts/msyh*
-   - 重新配置字体: rm ~/.config/qqmusic-wine/wineprefix/font_configured && qqmusic
+   - 重新配置字体: rm ~/.config/qqmusic-wine/wineprefix/font_configured && qqmusic-wine
 EOF2
     
     # 设置权限
