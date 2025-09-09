@@ -11,7 +11,7 @@ makedepends=('wine-staging' 'winetricks')
 optdepends=('lib32-pulse: 音频支持'
             'lib32-mesa: 图形支持'
             'lib32-vulkan-icd-loader: DXVK Vulkan 支持')
-source=("QQMusic_YQQWinPCDL.exe::https://dldir.y.qq.com/music/clntupate/QQMusic_YQQWinPCDL.exe?sign=1757381507-EGbYzfSyKpn6BWR2-0-e2aa04ee9774adb1c83e7ce63c67cffa"
+source=("QQMusic_YQQWinPCDL.exe"
         "msyh.ttc::https://files.exefiles.com/initial/m/msyh-ttc/d9adc6d2c21171c0f0b8dfbaec764b83/msyh.ttc"
         "msyhbd.ttc::https://files.exefiles.com/initial/m/msyhbd-ttc/db132f98d50f02f0ddb4ce4a5d847c97/msyhbd.ttc"
         "qqmusic-launcher.sh"
