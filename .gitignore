@@ -2,7 +2,6 @@
 msyh.ttc
 msyhbd.ttc
 *.part
-QQMusic_YQQWinPCDL.exe
 
 # Build artifacts
 */src/
@@ -18,10 +17,6 @@ wineprefix/
 # Temporary files
 *.tmp
 *~
-
-# Large binary archives
-*.tar.zst
-*.tar.gz
 
 # Editor backups
 .vscode/
