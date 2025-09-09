@@ -1,0 +1,20 @@
+# Downloaded files during build
+QQMusic_YQQWinPCDL.exe
+msyh.ttc
+msyhbd.ttc
+*.part
+
+# Build artifacts
+src/
+pkg/
+*.pkg.tar.*
+
+# Wine prefix (if accidentally created in repo)
+wineprefix/
+
+# Makepkg logs
+*.log
+
+# Temporary files
+*.tmp
+*~
